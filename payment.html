@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagamento e Download</title>
+
+<style>
+:root{
+  --bg:#000;
+  --card:#0e0e0e;
+  --text:#eaeaea;
+  --muted:#777;
+  --accent:#3CE9FE;
+}
+
+body{
+  background:#000;
+  color:var(--text);
+  font-family:system-ui, sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.container{
+  background:var(--card);
+  max-width:420px;
+  width:100%;
+  padding:32px;
+  border-radius:16px;
+  text-align:center;
+}
+
+.logo{
+  width:120px;
+  height:120px;
+  object-fit:contain;
+  margin-bottom:16px;
+}
+
+.btn{
+  width:100%;
+  padding:14px;
+  border-radius:10px;
+  border:none;
+  margin-top:12px;
+  cursor:pointer;
+}
+
+.btn-active{
+  background:var(--accent);
+  color:#000;
+}
+
+.btn-disabled{
+  background:#1a1a1a;
+  color:#555;
+  cursor:not-allowed;
+}
+
+footer{
+  margin-top:24px;
+  font-size:12px;
+  color:#666;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <img class="logo" src="https://cdn.myportfolio.com/b75663ac-3353-4251-9b61-00d42cf4b621/4df26855-ad25-4f44-977a-523a51f98e2c_rwc_0x0x700x700x4096.gif?h=78792e322027ed254b1dfddd3369072f">
+
+  <h2 id="clienteNome"></h2>
+  <p id="valor"></p>
+
+  <button id="btnPagar" class="btn btn-active">Pagar agora</button>
+  <button id="btnWhatsapp" class="btn btn-disabled">Enviar comprovante</button>
+  <button id="btnDownload" class="btn btn-disabled">Baixar arquivos</button>
+
+  <footer>© AM Prints</footer>
+</div>
+
+<script>
+const SHEET_URL = "https://opensheet.elk.sh/1Jgjz2w5Vqy3FLRdw37qgXn-ZoW8_X-1HzY8HVcSXVN0/orders";
+
+const params = new URLSearchParams(window.location.search);
+const clienteId = params.get("cliente");
+
+const btnPagar = document.getElementById("btnPagar");
+const btnWhatsapp = document.getElementById("btnWhatsapp");
+const btnDownload = document.getElementById("btnDownload");
+
+fetch(SHEET_URL)
+.then(r=>r.json())
+.then(data=>{
+  const cliente = data.find(c=>c.cliente_id===clienteId);
+  if(!cliente){ alert("Cliente inválido"); return; }
+
+  document.getElementById("clienteNome").innerText = cliente.nome_cliente;
+  document.getElementById("valor").innerText = `Valor: R$ ${cliente.valor}`;
+
+  btnPagar.onclick=()=>{
+    window.open(cliente.link_pagamento,"_blank");
+    btnPagar.className="btn btn-disabled";
+    btnWhatsapp.className="btn btn-active";
+  };
+
+  btnWhatsapp.onclick=()=>{
+    window.open(`https://wa.me/55SEUNUMERO?text=${encodeURIComponent(cliente.whatsapp_msg)}`);
+  };
+
+  if(cliente.download_liberado==="TRUE"){
+    btnDownload.className="btn btn-active";
+    btnPagar.className="btn btn-disabled";
+    btnWhatsapp.className="btn btn-disabled";
+    btnDownload.onclick=()=>window.open(cliente.link_download,"_blank");
+  }
+});
+</script>
+
+</body>
+</html>

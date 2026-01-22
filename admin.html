@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Admin</title>
+<style>
+body{background:#000;color:#fff;font-family:sans-serif;padding:20px}
+.card{border:1px solid #222;padding:12px;margin-bottom:10px}
+button{padding:6px 10px;margin-top:6px}
+</style>
+</head>
+<body>
+
+<h2>Painel Admin</h2>
+<div id="lista"></div>
+
+<script>
+const URL = "https://opensheet.elk.sh/1Jgjz2w5Vqy3FLRdw37qgXn-ZoW8_X-1HzY8HVcSXVN0/orders";
+const BASE_LINK = "https://seudominio.com/pedido.html?cliente=";
+
+fetch(URL)
+.then(r=>r.json())
+.then(data=>{
+  data.forEach(c=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`
+      <strong>${c.nome_cliente}</strong><br>
+      Status: ${c.download_liberado}<br>
+      <button onclick="navigator.clipboard.writeText('${BASE_LINK}${c.cliente_id}')">Copiar link</button>
+      <br><a href="https://docs.google.com/spreadsheets/d/1Jgjz2w5Vqy3FLRdw37qgXn-ZoW8_X-1HzY8HVcSXVN0" target="_blank">Abrir planilha</a>
+    `;
+    document.getElementById("lista").appendChild(div);
+  });
+});
+</script>
+
+</body>
+</html>
